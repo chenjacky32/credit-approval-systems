@@ -84,6 +84,35 @@ npm run start
 
 ---
 
+## 🐳 Menjalankan Proyek dengan Docker
+
+Jika Anda tidak ingin meng-install MySQL dan Node.js secara manual, Anda dapat menjalankan proyek ini menggunakan Docker.
+
+### 1. Setup Environment
+Pastikan Anda sudah menyalin `.env.example` ke `.env`.
+
+### 2. Jalankan Docker Compose
+Jalankan perintah berikut untuk menjalankan container database dan aplikasi di *background*:
+```bash
+docker compose up -d --build
+```
+*Catatan: Aplikasi akan berjalan dengan `nodemon` menggunakan mode `legacy-watch` sehingga auto-reload tetap berfungsi dari host ke dalam container.*
+
+### 3. Push Schema Database & Seeding (Pertama Kali)
+Setelah container berjalan, lakukan sinkronisasi skema ke database dan masukkan data awal (seeder):
+```bash
+docker compose exec app npm run db:push
+docker compose exec app npm run seed
+```
+
+### 4. Melihat Log Aplikasi
+Untuk melihat log atau *error* saat aplikasi berjalan:
+```bash
+docker compose logs -f app
+```
+
+---
+
 ## 📑 Daftar Endpoint API
 
 ### Auth

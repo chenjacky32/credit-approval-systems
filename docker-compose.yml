@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: credit_approval_api
+    build:
+      context: .
+      dockerfile: DockerFile
+    ports:
+      - '${PORT}:${PORT}'
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      NODE_ENV: ${NODE_ENV}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: ${PORT}
+    volumes:
+      - ./:/app 
+      - /app/node_modules 
+    entrypoint: ["npm", "run", "dev"]
+    restart: unless-stopped
+    depends_on:
+      - database
+
+  database:
+    image: mysql:8
+    container_name: ${DB_HOST}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      TZ: Asia/Jakarta
+    ports:
+      - '3308:3306'
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+    tty: true
+
+volumes:
+  db_data:
