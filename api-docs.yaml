@@ -1,0 +1,240 @@
+openapi: 3.0.0
+info:
+  title: Credit Approval Systems API
+  version: 1.0.0
+  description: API Contract Documentation for Credit Approval Systems (Issue #2)
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    RegisterRequest:
+      type: object
+      required:
+        - fullname
+        - email
+        - password
+      properties:
+        fullname:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+    CreateSubmissionRequest:
+      type: object
+      required:
+        - fullName
+        - type
+        - amount
+        - tenor
+        - monthlyIncome
+      properties:
+        fullName:
+          type: string
+        type:
+          type: string
+          enum: [MOTORCYCLE, CAR, MULTIPURPOSE]
+        amount:
+          type: number
+        tenor:
+          type: number
+        monthlyIncome:
+          type: number
+        notes:
+          type: string
+    UpdateSubmissionStatusRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [SUBMIT, APPROVE, REJECT]
+    SuccessResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "ok"
+        message:
+          type: string
+        data:
+          type: object
+security:
+  - bearerAuth: []
+paths:
+  /api/auth/login:
+    post:
+      summary: Login
+      description: Endpoint to authenticate user and retrieve access token.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          description: Unauthorized
+        "422":
+          description: Unprocessable Entity
+        "500":
+          description: Internal Server Error
+
+  /api/auth/register:
+    post:
+      summary: Register
+      description: Endpoint to register a new user.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "409":
+          description: Conflict
+        "422":
+          description: Unprocessable Entity
+        "500":
+          description: Internal Server Error
+
+  /api/submission:
+    post:
+      summary: Create Submission
+      description: Endpoint to create a new credit submission.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSubmissionRequest"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "422":
+          description: Unprocessable Entity
+        "500":
+          description: Internal Server Error
+    get:
+      summary: Get Submission List
+      description: Endpoint to retrieve a paginated list of submissions.
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+        - in: query
+          name: size
+          schema:
+            type: integer
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [SUBMIT, APPROVE, REJECT]
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+
+  /api/submission/{id}:
+    get:
+      summary: Get Submission Detail
+      description: Endpoint to retrieve the details of a specific submission.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+
+  /api/submission/{id}/status:
+    patch:
+      summary: Update Submission Status
+      description: Endpoint to update the status of a specific submission.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSubmissionStatusRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+        "500":
+          description: Internal Server Error
