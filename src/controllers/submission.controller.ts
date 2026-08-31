@@ -27,4 +27,21 @@ export class SubmissionController {
     }
   };
 
+  getList = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!_req.user) {
+        return HttpResponse.fail(res, 401, "Invalid credentials");
+      }
+      const query = _req.query as unknown as QuerySubmissionListDTO;
+      
+      // Filter by userId if role is CREDIT_ADMIN
+      const userId = _req.user.role === "CREDIT_ADMIN" ? _req.user.id : undefined;
+
+      const { data, meta } = await this.service.getSubmissions(query, userId);
+      return HttpResponse.success(res, 200, "Submission list retrieved successfully", data, meta);
+    } catch (error) {
+      next(error);
+    }
+  };
+
 }

@@ -27,3 +27,10 @@ export const CreateSubmissionSchema = z.object({
   notes: z.string().optional().default(""),
 });
 
+export const QuerySubmissionListSchema = z.object({
+  page: z.coerce.number().int().positive().optional().default(1),
+  size: z.coerce.number().int().positive().optional().default(10),
+  search: z.string().optional(),
+  status: z.enum(["SUBMIT", "APPROVE", "REJECT"]).optional(),
+});
+

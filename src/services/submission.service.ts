@@ -74,6 +74,46 @@ export class SubmissionService {
     };
   }
 
+  async getSubmissions(query: QuerySubmissionListDTO, userId?: number) {
+    const page = query.page || 1;
+    const size = query.size || 10;
+
+    const { data, total } = await this.submissionRepo.findMany({
+      page,
+      size,
+      search: query.search,
+      status: query.status,
+      userId,
+    });
+
+    const totalPages = Math.ceil(total / size) || 1;
+    const hasPrevPage = page > 1;
+    const hasNextPage = page < totalPages;
+
+    const formattedData = data.map((item) => ({
+      id: item.id,
+      fullName: item.fullname,
+      type: item.type,
+      amount: parseFloat(String(item.amount)),
+      tenor: item.tenor,
+      monthlyBilling: this.calculateMonthlyBilling(item.amount, item.tenor),
+      submittedAt: item.createdAt.toISOString(),
+      status: item.status,
+    }));
+
+    return {
+      data: formattedData,
+      meta: {
+        page,
+        size,
+        totalRecord: total,
+        totalPages,
+        hasPrevPage,
+        hasNextPage,
+      },
+    };
+  }
+
 }
 
 export const submissionService = new SubmissionService();
