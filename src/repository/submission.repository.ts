@@ -69,6 +69,28 @@ export class SubmissionRepository {
     return { data, total };
   }
 
+  async updateStatus(
+    id: number,
+    status: "SUBMIT" | "APPROVE" | "REJECT",
+    userId: number
+  ): Promise<Submission | undefined> {
+    const updateData: Partial<NewSubmission> = {
+      status,
+      updatedAt: new Date(),
+    };
+
+    if (status === "APPROVE") {
+      updateData.approvedBy = userId;
+      updateData.approvedAt = new Date();
+    } else if (status === "REJECT") {
+      updateData.rejectedBy = userId;
+      updateData.rejectedAt = new Date();
+    }
+
+    await db.update(submissions).set(updateData).where(eq(submissions.id, id));
+
+    return this.findById(id);
+  }
 }
 
 export const submissionRepository = new SubmissionRepository();

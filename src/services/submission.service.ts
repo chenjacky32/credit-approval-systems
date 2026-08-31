@@ -136,6 +136,32 @@ export class SubmissionService {
     };
   }
 
+  async updateSubmissionStatus(
+    id: number,
+    status: "SUBMIT" | "APPROVE" | "REJECT",
+    userId: number
+  ) {
+    const existing = await this.submissionRepo.findById(id);
+    if (!existing) {
+      throw new HttpError("Submission not found", 404);
+    }
+
+    const updated = await this.submissionRepo.updateStatus(id, status, userId);
+    if (!updated) {
+      throw new HttpError("Failed to update submission status", 500);
+    }
+
+    return {
+      id: updated.id,
+      fullName: updated.fullname,
+      type: updated.type,
+      amount: parseFloat(String(updated.amount)),
+      tenor: updated.tenor,
+      monthlyBilling: this.calculateMonthlyBilling(updated.amount, updated.tenor),
+      submittedAt: updated.createdAt.toISOString(),
+      status: updated.status,
+    };
+  }
 }
 
 export const submissionService = new SubmissionService();

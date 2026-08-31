@@ -34,3 +34,10 @@ export const QuerySubmissionListSchema = z.object({
   status: z.enum(["SUBMIT", "APPROVE", "REJECT"]).optional(),
 });
 
+export const UpdateSubmissionStatusSchema = z.object({
+  status: z.enum(["SUBMIT", "APPROVE", "REJECT"]),
+});
+
+export type CreateSubmissionDTO = z.infer<typeof CreateSubmissionSchema>;
+export type QuerySubmissionListDTO = z.infer<typeof QuerySubmissionListSchema>;
+export type UpdateSubmissionStatusDTO = z.infer<typeof UpdateSubmissionStatusSchema>;

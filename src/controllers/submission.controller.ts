@@ -60,4 +60,22 @@ export class SubmissionController {
     }
   };
 
+  updateStatus = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!_req.user) {
+        return HttpResponse.fail(res, 401, "Invalid credentials");
+      }
+      const id = Number(_req.params.id);
+      if (isNaN(id)) {
+        return HttpResponse.fail(res, 400, "Invalid submission ID");
+      }
+      const { status } = _req.body as UpdateSubmissionStatusDTO;
+      const data = await this.service.updateSubmissionStatus(id, status, _req.user.id);
+      return HttpResponse.success(res, 200, "Submission status updated successfully", data);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
+
+export const submissionController = new SubmissionController();
