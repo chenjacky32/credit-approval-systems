@@ -44,4 +44,20 @@ export class SubmissionController {
     }
   };
 
+  getDetail = async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      if (!_req.user) {
+        return HttpResponse.fail(res, 401, "Invalid credentials");
+      }
+      const id = Number(_req.params.id);
+      if (isNaN(id)) {
+        return HttpResponse.fail(res, 400, "Invalid submission ID");
+      }
+      const data = await this.service.getSubmissionDetail(id, { id: _req.user.id, role: _req.user.role });
+      return HttpResponse.success(res, 200, "Submission detail retrieved successfully", data);
+    } catch (error) {
+      next(error);
+    }
+  };
+
 }

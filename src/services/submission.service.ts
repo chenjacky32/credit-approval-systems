@@ -114,6 +114,28 @@ export class SubmissionService {
     };
   }
 
+  async getSubmissionDetail(id: number, reqUser?: { id: number; role: string }) {
+    const submission = await this.submissionRepo.findById(id);
+    if (!submission) {
+      throw new HttpError("Submission not found", 404);
+    }
+
+    if (reqUser && reqUser.role === "CREDIT_ADMIN" && submission.userId !== reqUser.id) {
+      throw new HttpError("You don't have permission to access this resource", 403);
+    }
+
+    return {
+      id: submission.id,
+      fullName: submission.fullname,
+      type: submission.type,
+      amount: parseFloat(String(submission.amount)),
+      tenor: submission.tenor,
+      monthlyBilling: this.calculateMonthlyBilling(submission.amount, submission.tenor),
+      submittedAt: submission.createdAt.toISOString(),
+      status: submission.status,
+    };
+  }
+
 }
 
 export const submissionService = new SubmissionService();
